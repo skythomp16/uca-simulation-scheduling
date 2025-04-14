@@ -27,72 +27,6 @@ async function outputFile() {
         return;
     }
 
-    const HEADER_ROW = [
-        {
-            value: 'Name',
-            fontWeight: 'bold'
-        },
-        {
-            value: 'Date of Birth',
-            fontWeight: 'bold'
-        },
-        {
-            value: 'Cost',
-            fontWeight: 'bold'
-        },
-        {
-            value: 'Paid',
-            fontWeight: 'bold'
-        }
-    ]
-
-    const DATA_ROW_1 = [
-        {
-            value: 'John Smith'
-        },
-        {
-            value: 'Textract'
-        },
-        {
-            value: 1800
-        },
-        {
-            value: true
-        }
-    ]
-
-    // Generate data
-
-
-
-    let data = [
-        // Monday
-        [
-            HEADER_ROW,
-            DATA_ROW_1
-        ],
-        // Tuesday
-        [
-            HEADER_ROW,
-            DATA_ROW_1
-        ],
-        // Wednesday
-        [
-            HEADER_ROW,
-            DATA_ROW_1
-        ],
-        // Thursday
-        [
-            HEADER_ROW,
-            DATA_ROW_1
-        ],
-        // Friday
-        [
-            HEADER_ROW,
-            DATA_ROW_1
-        ]
-    ];
-
     const output = processStudentAvailability(studentSchedules);
 
     console.log(output);
@@ -145,7 +79,7 @@ function processStudentAvailability(data) {
     const DAYS = ["M", "T", "W", "R", "F"];
     const TIME_SLOTS = { M: MWF_SLOTS, W: MWF_SLOTS, F: MWF_SLOTS, T: TR_SLOTS, R: TR_SLOTS };
 
-    let studentCounter = 1; // Counter for assigning student names
+    let studentName = "Student"
     let studentAvailability = []; // Array to track student availabilities
 
     // Process each file
@@ -153,8 +87,13 @@ function processStudentAvailability(data) {
         if (fileData.rows && Array.isArray(fileData.rows)) {
             const [headerRow, ...dataRows] = fileData.rows;
 
-            // Initialize this student's availability
-            const studentName = `Student ${studentCounter++}`;
+            // Find the index of the "Name" header
+            const nameColumnIndex = headerRow.indexOf("Name");
+
+            if (nameColumnIndex !== -1 && dataRows.length > 0) {
+                // Get the first value under the "Name" column
+                studentName = dataRows[0][nameColumnIndex];
+            }
 
             // Default availability for all time slots (every day)
             let student = {
@@ -246,37 +185,39 @@ function normalizeStartTime(time) {
 </script>
 
 <template>
-    <div class="container-fluid">
-        <form class="mb-3 mt-2">
-            <!-- Input Location -->
-            <div class="mb-3">
-                <div class="d-flex">
-                    <input type="text" class="form-control me-2" :value="inputFilePath" readonly placeholder="Choose the input excel directory..." />
-                    <button type="button" class="btn btn-primary" @click="readInput">
-                        Browse
-                    </button>
+    <div class="container-fluid d-flex justify-content-center align-items-center vh-100 text-center">
+        <div class="w-100 px-3">
+            <form class="mb-3 mt-2">
+                <!-- Input Location -->
+                <div class="mb-3">
+                    <div class="d-flex">
+                        <input type="text" class="form-control me-2" :value="inputFilePath" readonly placeholder="Choose the input excel directory..." />
+                        <button type="button" class="btn btn-primary" @click="readInput">
+                            Browse
+                        </button>
+                    </div>
                 </div>
+
+                <!-- Output Location -->
+                <div class="mb-3">
+                    <div class="d-flex">
+                        <input type="text" class="form-control me-2" :value="outputFilePath" readonly placeholder="Choose the directory to save the output..." />
+                        <button type="button" class="btn btn-primary" @click="chooseDirectory(false)">
+                            Browse
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Preview Pane -->
+            <div class="mb-3">
+                <!-- Add any preview content here if needed -->
             </div>
 
-            <!-- Output Location -->
+            <!-- Submit Button -->
             <div class="mb-3">
-                <div class="d-flex">
-                    <input type="text" class="form-control me-2" :value="outputFilePath" readonly placeholder="Choose the directory to save the output..." />
-                    <button type="button" class="btn btn-primary" @click="chooseDirectory(false)">
-                        Browse
-                    </button>
-                </div>
+                <button type="button" class="btn btn-primary" @click="outputFile">Process</button>
             </div>
-        </form>
-
-        <!-- Preview Pane -->
-        <div class="mb-3">
-
-        </div>
-
-        <!-- Submit Button -->
-        <div class="mb-3">
-            <button type="button" class="btn btn-primary" @click="outputFile">Process</button>
         </div>
     </div>
 </template>
