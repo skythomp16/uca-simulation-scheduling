@@ -4,8 +4,12 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    ignore: [/\/\.(?!vite)/],
   },
-  rebuildConfig: {},
+  rebuildConfig: {
+    force: true,
+    onlyModules: ['read-excel-file', "write-excel-file"],
+  },
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
